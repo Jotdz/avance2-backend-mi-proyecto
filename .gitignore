@@ -1,0 +1,10 @@
+/build/
+/dist/
+/nbproject/private/
+/*.class
+*.iml
+.DS_Store
+/build/
+/dist/
+/nbproject/private/
+*.class
