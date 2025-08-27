@@ -16,12 +16,13 @@ public class Pedido {
     private ArrayList<Producto> productos;
     private LocalDateTime fechaHora;
     private String estado; 
+    private boolean facturado = false;
 
     public Pedido(int pedidoID) {
         this.pedidoID = pedidoID;
         this.productos = new ArrayList<>();
         this.fechaHora = LocalDateTime.now();
-        this.estado = "Pediente";
+        this.estado = "Pendiente";
     }
     
     public void agregarProducto(Producto p) {
@@ -56,5 +57,25 @@ public class Pedido {
         this.estado = estado;
     }
     
+    public boolean isFacturado() { 
+        return facturado; 
+    }
+    public void setFacturado(boolean facturado) { 
+        this.facturado = facturado; 
+    }
     
+    public void marcarPreparado() { 
+        this.estado = "preparado"; 
+    }
+
+    public void marcarEntregado() { 
+        this.estado = "entregado"; 
+    }
+    
+    @Override
+    public String toString() {
+        return "Pedido #" + pedidoID + " | " + productos.size() + " ítems | " +
+               "Estado: " + estado + " | Total \u20A1" + String.format("%.2f", calcularTotal());
+    }
+       
 }

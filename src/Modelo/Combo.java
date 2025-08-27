@@ -5,26 +5,30 @@
 package Modelo;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author Josué Sánchez
  */
 public class Combo extends Producto {
-    private ArrayList<Producto> productosIncluidos;
-
-    public Combo(int productoID, String comboNombre, double precioCombo, ArrayList<Producto> productosIncluidos) {
+    
+    private final List<Producto> productosIncluidos = new ArrayList<>();
+    
+    public Combo(int productoID, String comboNombre, double precioCombo) {
         super(productoID, comboNombre, precioCombo, "Combo");
-        this.productosIncluidos = productosIncluidos;
     }
 
-    public ArrayList<Producto> getProductosIncluidos() {
-        return productosIncluidos;
+    public void agregarProductoIncluido(Producto p) { 
+        if (p != null) productosIncluidos.add(p); 
     }
 
+    public List<Producto> getProductosIncluidos() { 
+        return productosIncluidos; 
+    }
 
     @Override
     public String toString() {
-        return getProductoNombre() + " (Combo) - \u20A1" + getPrecio();
-    }    
+        return "Combo " + getProductoNombre() + " - \u20A1" + String.format("%.2f", getPrecio());
+    } 
 }

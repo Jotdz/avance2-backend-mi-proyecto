@@ -44,7 +44,7 @@ public class Producto {
      */
     @Override
     public String toString() {
-        return productoNombre + " - \u20A1" + precio;
+        return productoNombre + " - \u20A1" + String.format("%.2f", precio);
     }
     
 }

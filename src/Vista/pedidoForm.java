@@ -8,8 +8,11 @@ import javax.swing.DefaultListModel;
 import Modelo.Producto;
 import Modelo.Combo;
 import Modelo.Pedido; 
+import Modelo.Factura;
 import Controlador.servicioCocina;  
 import java.util.ArrayList;
+import Datos.pedidoDAO;
+import Red.clientePedidos;
 
 /**
  *
@@ -22,6 +25,32 @@ public class pedidoForm extends javax.swing.JFrame {
 
     DefaultListModel<Producto> modeloProductos   = new DefaultListModel<>();
     DefaultListModel<Producto> modeloSeleccionados = new DefaultListModel<>();
+    private javax.swing.DefaultComboBoxModel<Modelo.Combo> modeloCombo;
+    
+    private void cargarCombosIniciales() {
+        Modelo.Combo clasico = new Modelo.Combo(100, "Clásico", 4200.0);
+        Modelo.Combo doble   = new Modelo.Combo(101, "Doble",   5200.0);
+
+        modeloCombo.addElement(clasico);
+        modeloCombo.addElement(doble);
+    }
+    
+    private void salir() {
+        Object[] opciones = {"Si", "No"};
+        int op = javax.swing.JOptionPane.showOptionDialog(
+                this,
+                "¿Seguro que desea salir?",
+                "Salir",
+                javax.swing.JOptionPane.YES_NO_OPTION,
+                javax.swing.JOptionPane.QUESTION_MESSAGE,
+                null,
+                opciones,
+                opciones[1] 
+        );
+        if (op == javax.swing.JOptionPane.YES_OPTION) {
+            System.exit(0);
+        }
+}
     
 
     /**
@@ -35,12 +64,10 @@ public class pedidoForm extends javax.swing.JFrame {
         modeloProductos.addElement(new Producto(3, "Refresco", 1000, "Bebida"));
         
         
-        ArrayList<Producto> productosCombo = new ArrayList<>();
-        productosCombo.add(new Producto(1, "Hamburguesa Clásica", 2500, "Individual"));
-        productosCombo.add(new Producto(2, "Papas Grandes", 1200, "Individual"));
-        productosCombo.add(new Producto(3, "Refresco", 1000, "Bebida"));
+        modeloCombo = new javax.swing.DefaultComboBoxModel<>();
+        cbCombo.setModel(modeloCombo);
+        cargarCombosIniciales();
 
-        modeloProductos.addElement(new Combo(4, "Combo Clásico", 4200, productosCombo));
 
         listaProductos.setModel(modeloProductos);
         listaSeleccionados.setModel(modeloSeleccionados);
@@ -68,25 +95,6 @@ public class pedidoForm extends javax.swing.JFrame {
             }
         }
     });
-    
-    botonEnviar.addActionListener(evt -> {
-    if (pedidoActual.getProductos().isEmpty()) {
-        javax.swing.JOptionPane.showMessageDialog(this,
-                "Debe agregar al menos un producto.");
-        return;
-    }
-
-    servicioCocina.agregar(pedidoActual);
-
-    javax.swing.JOptionPane.showMessageDialog(this,
-            "¡Pedido #" + pedidoActual.getPedidoID()
-            + " enviado a cocina!  Total: \u20A1" + pedidoActual.calcularTotal());
-
-
-    modeloSeleccionados.clear();
-    pedidoActual = new Pedido(Controlador.servicioCocina.generarId());
-    actualizarTotal();
-});
         
     }
     
@@ -109,6 +117,7 @@ public class pedidoForm extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jMenuItem1 = new javax.swing.JMenuItem();
         botonAgregar = new javax.swing.JButton();
         botonEliminar = new javax.swing.JButton();
         jlabelTotal = new javax.swing.JLabel();
@@ -119,6 +128,16 @@ public class pedidoForm extends javax.swing.JFrame {
         listaProductos = new javax.swing.JList<>();
         jScrollPane2 = new javax.swing.JScrollPane();
         listaSeleccionados = new javax.swing.JList<>();
+        lblCombo = new javax.swing.JLabel();
+        cbCombo = new javax.swing.JComboBox<>();
+        btnAgregarCombo = new javax.swing.JButton();
+        menuBar = new javax.swing.JMenuBar();
+        Cocina = new javax.swing.JMenu();
+        abrirMonitor = new javax.swing.JMenuItem();
+        generarFactura = new javax.swing.JMenuItem();
+        Salir = new javax.swing.JMenuItem();
+
+        jMenuItem1.setText("jMenuItem1");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -129,61 +148,238 @@ public class pedidoForm extends javax.swing.JFrame {
         jlabelTotal.setText("Total");
 
         botonEnviar.setText("Enviar a cocina");
+        botonEnviar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                botonEnviarActionPerformed(evt);
+            }
+        });
 
+        jlabelDisponibles.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jlabelDisponibles.setText("Disponibles");
 
+        jlabelSeleccionados.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jlabelSeleccionados.setText("Seleccionados");
 
         jScrollPane1.setViewportView(listaProductos);
 
         jScrollPane2.setViewportView(listaSeleccionados);
 
+        lblCombo.setText("Combo");
+
+        btnAgregarCombo.setText("Agregar Combo");
+        btnAgregarCombo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAgregarComboActionPerformed(evt);
+            }
+        });
+
+        Cocina.setText("Opciones");
+        Cocina.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                CocinaActionPerformed(evt);
+            }
+        });
+
+        abrirMonitor.setText("Monitor");
+        abrirMonitor.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                abrirMonitorActionPerformed(evt);
+            }
+        });
+        Cocina.add(abrirMonitor);
+
+        generarFactura.setText("Facturar");
+        generarFactura.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                generarFacturaActionPerformed(evt);
+            }
+        });
+        Cocina.add(generarFactura);
+
+        Salir.setText("Salir");
+        Salir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                SalirActionPerformed(evt);
+            }
+        });
+        Cocina.add(Salir);
+
+        menuBar.add(Cocina);
+
+        setJMenuBar(menuBar);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(109, 109, 109)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(botonAgregar)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(botonEliminar, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(botonEnviar)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(88, 88, 88)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jlabelDisponibles)
-                        .addGap(208, 208, 208)
-                        .addComponent(jlabelSeleccionados))
-                    .addComponent(jlabelTotal, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(botonAgregar)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.CENTER, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jlabelDisponibles, javax.swing.GroupLayout.Alignment.CENTER))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jlabelSeleccionados)
+                                .addGap(63, 63, 63))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(122, 122, 122)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(botonEliminar, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jlabelTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                    .addComponent(botonEnviar, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addGap(12, 12, 12)
+                .addComponent(lblCombo)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(cbCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnAgregarCombo)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(8, 8, 8)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblCombo)
+                    .addComponent(cbCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnAgregarCombo))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jlabelDisponibles)
                     .addComponent(jlabelSeleccionados))
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jlabelTotal)
-                .addGap(15, 15, 15)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(botonAgregar)
-                    .addComponent(botonEliminar))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jlabelTotal)
+                        .addComponent(botonEliminar))
+                    .addComponent(botonAgregar))
+                .addGap(18, 18, 18)
                 .addComponent(botonEnviar)
-                .addContainerGap(27, Short.MAX_VALUE))
+                .addGap(27, 27, 27))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void CocinaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CocinaActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_CocinaActionPerformed
+
+    private void abrirMonitorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_abrirMonitorActionPerformed
+        // TODO add your handling code here:
+        
+        new Vista.cocinaForm().setVisible(true);
+        
+    }//GEN-LAST:event_abrirMonitorActionPerformed
+
+    private void generarFacturaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generarFacturaActionPerformed
+        // TODO add your handling code here:
+        
+        try {
+            pedidoActual.getProductos().clear();
+            for (int i = 0; i < modeloSeleccionados.getSize(); i++) {
+                Modelo.Producto p = modeloSeleccionados.get(i);
+                pedidoActual.agregarProducto(p);
+            }
+
+            if (pedidoActual.getProductos().isEmpty()) {
+                javax.swing.JOptionPane.showMessageDialog(this, "El pedido está vacío.");
+                return;
+            }
+
+            Factura f = new Factura(Controlador.servicioCocina.generarId(), pedidoActual);
+            java.io.File archivo = f.imprimirFactura();
+
+            javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "Factura generada:\n" + archivo.getAbsolutePath()
+            );
+        } catch (Exception ex) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Error al facturar: " + ex.getMessage());
+        } 
+    }//GEN-LAST:event_generarFacturaActionPerformed
+
+    private void botonEnviarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonEnviarActionPerformed
+        // TODO add your handling code here:
+        
+        pedidoActual.getProductos().clear();
+        for (int i = 0; i < modeloSeleccionados.getSize(); i++) {
+            Modelo.Producto p = modeloSeleccionados.get(i);
+            pedidoActual.agregarProducto(p);
+        }
+
+        if (pedidoActual.getProductos().isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Agregue productos antes de enviar.");
+            return;
+        }
+
+        double total = 0.0;
+        for (int i = 0; i < modeloSeleccionados.size(); i++) {
+            total += modeloSeleccionados.get(i).getPrecio();
+        }
+
+        int idGenerado = new Datos.pedidoDAO().crear("MOSTRADOR", total);
+
+        if (idGenerado <= 0) {
+            javax.swing.JOptionPane.showMessageDialog(this, "No se pudo guardar el pedido en la base de datos.");
+            return;
+        }
+
+        String resumen = "Pedido#" + idGenerado
+                + " | items=" + pedidoActual.getProductos().size()
+                + " | total=" + total;
+        String respuestaServidor = Red.clientePedidos.enviarResumen("127.0.0.1", 5000, resumen);
+
+        pedidoActual.setEstado("pendiente");
+        Controlador.servicioCocina.agregar(pedidoActual);
+
+        javax.swing.JOptionPane.showMessageDialog(
+            this,
+            "Pedido guardado (ID " + idGenerado + ") y enviado a cocina.\n"
+            + "Mensajería al servidor: " + respuestaServidor
+            + "\nQueda como -pendiente- en el monitor."
+        );
+
+        pedidoActual = new Modelo.Pedido(Controlador.servicioCocina.generarId());
+        modeloSeleccionados.clear();
+        actualizarTotal();
+        
+    }//GEN-LAST:event_botonEnviarActionPerformed
+
+    private void btnAgregarComboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarComboActionPerformed
+        // TODO add your handling code here:
+        
+        Modelo.Combo c = (Modelo.Combo) cbCombo.getSelectedItem();
+        if (c == null) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Seleccione un combo.");
+            return;
+        }
+
+        pedidoActual.agregarProducto(c);
+        modeloSeleccionados.addElement(c);
+        actualizarTotal(); 
+        
+    }//GEN-LAST:event_btnAgregarComboActionPerformed
+
+    private void SalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SalirActionPerformed
+        // TODO add your handling code here:
+        
+        salir();
+        
+    }//GEN-LAST:event_SalirActionPerformed
 
     /**
      * @param args the command line arguments
@@ -222,15 +418,24 @@ public class pedidoForm extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenu Cocina;
+    private javax.swing.JMenuItem Salir;
+    private javax.swing.JMenuItem abrirMonitor;
     private javax.swing.JButton botonAgregar;
     private javax.swing.JButton botonEliminar;
     private javax.swing.JButton botonEnviar;
+    private javax.swing.JButton btnAgregarCombo;
+    private javax.swing.JComboBox<Modelo.Combo> cbCombo;
+    private javax.swing.JMenuItem generarFactura;
+    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel jlabelDisponibles;
     private javax.swing.JLabel jlabelSeleccionados;
     private javax.swing.JLabel jlabelTotal;
+    private javax.swing.JLabel lblCombo;
     private javax.swing.JList<Modelo.Producto> listaProductos;
     private javax.swing.JList<Modelo.Producto> listaSeleccionados;
+    private javax.swing.JMenuBar menuBar;
     // End of variables declaration//GEN-END:variables
 }
